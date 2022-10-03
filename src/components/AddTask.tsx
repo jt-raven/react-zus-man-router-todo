@@ -1,13 +1,13 @@
 import { useEffect, useRef, ChangeEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Title, Paper, Group, Anchor, TextInput, Button } from '@mantine/core'
-import useStore from '../store'
+import useTaskStore from '../store'
 import useInputValidation from '../hooks/useInputValidation'
 
 const AddTask = () => {
   const inputRef = useRef<HTMLInputElement>(null)
   const navigate = useNavigate()
-  const { newTask, setNewTask, addTask } = useStore(state => state)
+  const { newTask, setNewTask, addTask } = useTaskStore(state => state)
   const [setUserInput, isValid] = useInputValidation(newTask, value => !!value.trim().length)
 
   useEffect(() => {
@@ -15,8 +15,10 @@ const AddTask = () => {
   }, [])
 
   const onTextInputChange = (event: ChangeEvent<HTMLInputElement>): void => {
-    setNewTask(event.target.value)
-    setUserInput(event.target.value)
+    const value = event.target.value
+
+    setNewTask(value)
+    setUserInput(value)
   }
 
   const onAddButtonClick = (): void => {

@@ -12,7 +12,7 @@ type TaskState = {
   newTask: string
   setNewTask: (newTask: string) => void
   addTask: () => void
-  updateTask: (id: number, description: string) => void
+  updateTask: (id: number, description: string, done?: boolean) => void
   deleteTask: (id: number) => void
   deleteAllTasks: () => void
   updateFilteredTasks: (tasks: Task[]) => void
@@ -41,13 +41,13 @@ const useTaskStore = create<TaskState>(
         ],
         newTask: ''
       })),
-    updateTask: (id, description) =>
+    updateTask: (id, description, done = false) =>
       set(state => ({
         ...state,
         tasks: state.tasks.map(task => ({
           ...task,
           description: task.id === id ? description : task.description,
-          done: task.id === id ? !task.done : task.done
+          done: task.id === id ? done : task.done
         }))
       })),
     deleteTask: id =>

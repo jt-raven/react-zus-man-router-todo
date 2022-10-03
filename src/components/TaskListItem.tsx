@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, ChangeEvent } from 'react'
 import { Paper, List, Group, Text, Button, TextInput } from '@mantine/core'
-import useStore from '../store'
+import useTaskStore from '../store'
+import useInputValidation from '../hooks/useInputValidation'
 
 type TaskListItemProps = {
   id: number
@@ -19,11 +20,19 @@ const TaskListItem = ({
 }: TaskListItemProps) => {
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const { updateTask, deleteTask } = useStore(state => state)
+  const { updateTask, deleteTask } = useTaskStore(state => state)
+  const [setUserInput, isValid] = useInputValidation(description, value => !!value.trim().length)
 
   useEffect(() => {
     inputRef.current?.focus()
   }, [isEditing])
+
+  const onTextInputChange = (id: number, event: ChangeEvent<HTMLInputElement>): void => {
+    const value = event.target.value
+
+    updateTask(id, value)
+    setUserInput(value)
+  }
 
   const onEditButtonClick = (id: number): void => {
     setSelectedTaskId(id)
@@ -40,10 +49,12 @@ const TaskListItem = ({
               <TextInput
                 ref={inputRef}
                 value={description}
-                onChange={e => updateTask(id, e.target.value)}
+                onChange={e => onTextInputChange(id, e)}
               />
             </Group>
-            <Button onClick={() => setIsEditing(false)}>Save</Button>
+            <Button onClick={() => setIsEditing(false)} disabled={!isValid}>
+              Save
+            </Button>
           </>
         ) : (
           <>
@@ -64,7 +75,7 @@ const TaskListItem = ({
                   <Button onClick={() => onEditButtonClick(id)} variant="default">
                     Edit
                   </Button>
-                  <Button onClick={() => updateTask(id, description)} color="teal">
+                  <Button onClick={() => updateTask(id, description, true)} color="teal">
                     Done
                   </Button>
                 </>
